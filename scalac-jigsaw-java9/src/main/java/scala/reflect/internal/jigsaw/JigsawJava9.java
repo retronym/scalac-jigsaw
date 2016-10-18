@@ -14,13 +14,19 @@ import java.util.stream.Collectors;
 public class JigsawJava9 implements JigsawAPI {
 
     public void helloModules() {
-        ModuleDescriptor mod1 = new ModuleDescriptor.Builder("acme.mod1").requires("java.xml").build();
-        ModuleDescriptor mod2 = new ModuleDescriptor.Builder("acme.mod2").requires("acme.mod1").build();
+        ModuleDescriptor mod0 = new ModuleDescriptor.Builder("acme.mod0").exports("acme.mod0").conceals("acme.mod0.impl").requires("java.xml").build();
+        ModuleDescriptor mod1 = new ModuleDescriptor.Builder("acme.mod1").exports("acme.mod1").conceals("acme.mod1.impl").requires(Set.of(ModuleDescriptor.Requires.Modifier.PUBLIC), "acme.mod0").build();
+        ModuleDescriptor mod2 = new ModuleDescriptor.Builder("acme.mod2").exports("acme.mod2").conceals("acme.mod2.impl").requires("acme.mod1").build();
         ModuleFinder systemFinder = ModuleFinder.ofSystem();
-        ModuleFinder customFinder = FixedModuleFinder.newModuleFinder(List.of(mod1, mod2));
+        ModuleFinder customFinder = FixedModuleFinder.newModuleFinder(List.of(mod0, mod1, mod2));
         Configuration configuration = Configuration.empty().resolveRequires(systemFinder, customFinder, List.of("acme.mod2"));
         String resultString = configuration.modules().stream().map(Objects::toString).collect(Collectors.joining(", "));
         System.out.println(resultString);
+        ResolvedModule root = configuration.findModule(mod2.name()).get();
+        List<ModuleDescriptor.Exports> exportedPackagesOfReads = root.reads().stream().flatMap(x -> x.reference().descriptor().exports().stream()).collect(Collectors.toList());
+        Set<String> rootPackages = root.reference().descriptor().packages();
+        System.out.println(exportedPackagesOfReads);
+        System.out.println(rootPackages);
     }
 }
 
