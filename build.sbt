@@ -33,11 +33,11 @@ pomExtra := (
     </scm>
   )
 
-osgiSettings
-
-val osgiVersion = version(_.replace('-', '.'))
-
-OsgiKeys.bundleSymbolicName := s"${organization.value}.${name.value}"
+//osgiSettings
+//
+//val osgiVersion = version(_.replace('-', '.'))
+//
+//OsgiKeys.bundleSymbolicName := s"${organization.value}.${name.value}"
 
 
 // maven publishing
